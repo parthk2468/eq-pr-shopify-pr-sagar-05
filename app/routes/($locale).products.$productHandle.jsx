@@ -185,6 +185,7 @@ export default function Product() {
                     learnMore={`/policies/${refundPolicy.handle}`}
                   />
                 )}
+                <Metafield />
               </div>
             </section>
           </div>
@@ -435,6 +436,61 @@ function ProductDetail({title, content, learnMore}) {
   );
 }
 
+function Metafield() {
+  const {product} = useLoaderData();
+  const {materialType, weight, dimensions, additionalProductFeature} = product;
+  const dimensionObj = dimensions ? JSON.parse(dimensions?.value) : {};
+  console.log(dimensions);
+  return (
+    <>
+      {materialType && (
+        <>
+          <h2 className="text-2xl font-bold">Material Type:</h2>
+          <ul className="list-disc ml-3">
+            {JSON.parse(materialType?.value).map((material) => (
+              <li className="capitalize" key={material}>
+                {material}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {additionalProductFeature && (
+        <>
+          <h2 className="text-2xl font-bold">Additional Product Feature:</h2>
+          <ul className="list-disc ml-3">
+            {JSON.parse(additionalProductFeature?.value).map((feature) => (
+              <li key={feature} className="capitalize">
+                {feature}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {weight && (
+        <>
+          <h2 className="text-2xl font-bold">Weight:</h2>
+          <ul className="list-disc ml-3">
+            <li className="capitalize">{JSON.parse(weight?.value)}kg</li>
+          </ul>
+        </>
+      )}
+      {dimensions && (
+        <>
+          <h2 className="text-2xl font-bold">Dimensions:</h2>
+          <ul className="list-disc ml-3">
+            {Object.keys(dimensionObj).map((dimension) => (
+              <li key={dimension} className="capitalize">
+                {dimension} - {dimensionObj[dimension]}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
+  );
+}
+
 const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariantFragment on ProductVariant {
     id
@@ -485,6 +541,18 @@ const PRODUCT_QUERY = `#graphql
       handle
       descriptionHtml
       description
+      additionalProductFeature: metafield(namespace: "custom", key: "additional_product_features") {
+        value
+      }
+      dimensions: metafield(namespace: "custom", key: "dimensions") {
+        value
+      }
+      weight: metafield(namespace: "custom", key: "weight") {
+        value
+      }
+      materialType: metafield(namespace: "custom", key: "material_type") {
+        value
+      }
       options {
         name
         values
